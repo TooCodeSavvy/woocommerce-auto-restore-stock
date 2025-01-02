@@ -8,6 +8,8 @@
 
 Automatically restores WooCommerce inventory/stock for orders that are cancelled or refunded.
 
+---
+
 ### Description
 
 WooCommerce Auto Restore Stock automatically restores your WooCommerce inventory/stock for orders that are cancelled or refunded.
@@ -16,17 +18,23 @@ The stock restoration process is triggered when an order transitions from **On-H
 
 When stock is restored, the plugin also adds an order note to provide transparency about the changes. These notes indicate the adjusted stock values and confirm that the inventory has been restored.
 
+---
+
 #### Key Features:
 
 -   Automatically restores stock for simple and variable products.
 -   Adds detailed order notes for transparency and tracking.
 -   Seamlessly integrates with WooCommerce's stock management system.
 
+---
+
 ### Installation
 
 1.  Upload the `woocommerce-auto-stock-restore` folder to the `/wp-content/plugins/` directory.
 2.  Activate the plugin through the **Plugins** menu in WordPress.
 3.  Test by cancelling or refunding an **On-Hold**, **Processing**, or **Completed** order to see the inventory/stock restored.
+
+---
 
 ### Frequently Asked Questions
 
@@ -38,6 +46,8 @@ A: The plugin will not take any action if stock management is disabled in WooCom
 
 **Q: Can I see the stock changes in the order?**\
 A: Yes, the plugin adds order notes detailing the restored stock levels for full transparency.
+
+---
 
 ### Changelog
 
