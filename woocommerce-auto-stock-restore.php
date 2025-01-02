@@ -43,32 +43,39 @@ if ( ! class_exists( 'WC_Auto_Stock_Restore' ) ) {
          * @param int $order_id The ID of the order being updated.
          */
         public function restore_order_stock( $order_id ) {
-            $order = wc_get_order( $order_id ); // Retrieve the order object.
-
-            // Ensure stock management is enabled and the order has items.
-            if ( ! get_option('woocommerce_manage_stock') == 'yes' || empty( $order->get_items() ) ) {
-                return;
-            }
-
-            // Loop through each item in the order.
-            foreach ( $order->get_items() as $item_id => $item ) {
-                $product = $item->get_product(); // Get the product object (simple or variation).
-
-                // Check if the product manages stock.
-                if ( $product && $product->managing_stock() ) {
-                    $qty = $item->get_quantity(); // Get the quantity of the product in the order.
-                    $new_stock = wc_update_product_stock( $product, $qty, 'increase' ); // Restore stock.
-
-                    // Add a note to the order for logging purposes.
-                    $order->add_order_note( sprintf(
-                        __( 'Stock for item #%s restored from %s to %s.', 'woocommerce' ),
-                        $product->get_id(),
-                        $product->get_stock_quantity() - $qty,
-                        $product->get_stock_quantity()
-                    ));
-                }
-            }
-        }
+			$order = wc_get_order( $order_id ); // Retrieve the order object.
+		
+			// Ensure stock management is enabled and the order has items.
+			if ( ! get_option('woocommerce_manage_stock') == 'yes' || empty( $order->get_items() ) ) {
+				return;
+			}
+		
+			// Loop through each item in the order.
+			foreach ( $order->get_items() as $item_id => $item ) {
+				$product = $item->get_product(); // Get the product object (simple or variation).
+		
+				// Check if the product manages stock.
+				if ( $product && $product->managing_stock() ) {
+					$current_stock = $product->get_stock_quantity(); // Get the current stock level.
+					$qty = $item->get_quantity(); // Get the quantity of the product in the order.
+		
+					// Correct the stock by adjusting based on the original stock level.
+					$new_stock = $current_stock + $qty;
+		
+					// Update the stock with the correct value.
+					$product->set_stock_quantity( $new_stock );
+					$product->save();
+		
+					// Add a note to the order for logging purposes.
+					$order->add_order_note( sprintf(
+						__( 'Stock for item #%s restored from %s to %s.', 'woocommerce' ),
+						$product->get_id(),
+						$current_stock,
+						$new_stock
+					));
+				}
+			}
+		}		
     }
 
     // Initialize the plugin by creating an instance of the class.
