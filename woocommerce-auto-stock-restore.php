@@ -8,7 +8,7 @@
  * Author URI: http://gerhardpotgieter.cim
  * License: GPL2
  */ 
-
+ 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 if ( ! class_exists( 'WC_Auto_Stock_Restore' ) ) {
