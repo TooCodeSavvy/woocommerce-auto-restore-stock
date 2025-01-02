@@ -1,58 +1,76 @@
 <?php
 /**
  * Plugin Name: WooCommerce Auto Restore Stock
- * Plugin URI: http://gerhardpotgieter.com/tag/woocommerce-auto-restore-stock
- * Description: Auto restore stock when orders are cancelled
- * Version: 1.0.1
- * Author: Gerhard Potgieter
- * Author URI: http://gerhardpotgieter.cim
+ * Description: Automatically restores stock for products when orders are cancelled or refunded in WooCommerce.
+ * Version: 1.0.2
+ * Author: Anouar
  * License: GPL2
- */ 
- 
+ */
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 if ( ! class_exists( 'WC_Auto_Stock_Restore' ) ) {
 
-	class WC_Auto_Stock_Restore {
+    /**
+     * Class WC_Auto_Stock_Restore
+     * 
+     * This class handles the automatic restoration of stock levels when orders are cancelled
+     * or refunded in WooCommerce. It listens for specific order status changes and updates
+     * product stock levels accordingly.
+     */
+    class WC_Auto_Stock_Restore {
 
-		public function __construct() {
-			add_action( 'woocommerce_order_status_processing_to_cancelled', array( $this, 'restore_order_stock' ), 10, 1 );
-			add_action( 'woocommerce_order_status_completed_to_cancelled', array( $this, 'restore_order_stock' ), 10, 1 );
-			add_action( 'woocommerce_order_status_on-hold_to_cancelled', array( $this, 'restore_order_stock' ), 10, 1 );
-			add_action( 'woocommerce_order_status_processing_to_refunded', array( $this, 'restore_order_stock' ), 10, 1 );
-			add_action( 'woocommerce_order_status_completed_to_refunded', array( $this, 'restore_order_stock' ), 10, 1 );
-			add_action( 'woocommerce_order_status_on-hold_to_refunded', array( $this, 'restore_order_stock' ), 10, 1 );
-		} // End __construct()
+        /**
+         * Constructor for WC_Auto_Stock_Restore.
+         * 
+         * Initializes the plugin by adding hooks for relevant WooCommerce order status transitions.
+         */
+        public function __construct() {
+            add_action( 'woocommerce_order_status_processing_to_cancelled', array( $this, 'restore_order_stock' ), 10, 1 );
+            add_action( 'woocommerce_order_status_completed_to_cancelled', array( $this, 'restore_order_stock' ), 10, 1 );
+            add_action( 'woocommerce_order_status_on-hold_to_cancelled', array( $this, 'restore_order_stock' ), 10, 1 );
+            add_action( 'woocommerce_order_status_processing_to_refunded', array( $this, 'restore_order_stock' ), 10, 1 );
+            add_action( 'woocommerce_order_status_completed_to_refunded', array( $this, 'restore_order_stock' ), 10, 1 );
+            add_action( 'woocommerce_order_status_on-hold_to_refunded', array( $this, 'restore_order_stock' ), 10, 1 );
+        }
 
-		public function restore_order_stock( $order_id ) {
-			$order = new WC_Order( $order_id );
+        /**
+         * Restore stock for all items in an order.
+         * 
+         * This method is triggered when an order transitions to a "cancelled" or "refunded" status.
+         * It restores stock levels for all products in the order, including variations.
+         * 
+         * @param int $order_id The ID of the order being updated.
+         */
+        public function restore_order_stock( $order_id ) {
+            $order = wc_get_order( $order_id ); // Retrieve the order object.
 
-			if ( ! get_option('woocommerce_manage_stock') == 'yes' && ! sizeof( $order->get_items() ) > 0 ) {
-				return;
-			}
+            // Ensure stock management is enabled and the order has items.
+            if ( ! get_option('woocommerce_manage_stock') == 'yes' || empty( $order->get_items() ) ) {
+                return;
+            }
 
-			foreach ( $order->get_items() as $item ) {
+            // Loop through each item in the order.
+            foreach ( $order->get_items() as $item_id => $item ) {
+                $product = $item->get_product(); // Get the product object (simple or variation).
 
-				if ( $item['product_id'] > 0 ) {
-					$_product = $order->get_product_from_item( $item );
+                // Check if the product manages stock.
+                if ( $product && $product->managing_stock() ) {
+                    $qty = $item->get_quantity(); // Get the quantity of the product in the order.
+                    $new_stock = wc_update_product_stock( $product, $qty, 'increase' ); // Restore stock.
 
-					if ( $_product && $_product->exists() && $_product->managing_stock() ) {
+                    // Add a note to the order for logging purposes.
+                    $order->add_order_note( sprintf(
+                        __( 'Stock for item #%s restored from %s to %s.', 'woocommerce' ),
+                        $product->get_id(),
+                        $product->get_stock_quantity() - $qty,
+                        $product->get_stock_quantity()
+                    ));
+                }
+            }
+        }
+    }
 
-						$old_stock = $_product->stock;
-
-						$qty = apply_filters( 'woocommerce_order_item_quantity', $item['qty'], $this, $item );
-
-						$new_quantity = $_product->increase_stock( $qty );
-
-						do_action( 'woocommerce_auto_stock_restored', $_product, $item );
-
-						$order->add_order_note( sprintf( __( 'Item #%s stock incremented from %s to %s.', 'woocommerce' ), $item['product_id'], $old_stock, $new_quantity) );
-
-						$order->send_stock_notifications( $_product, $new_quantity, $item['qty'] );
-					}
-				}
-			}
-		} // End restore_order_stock()
-	}
-	$GLOBALS['wc_auto_stock_restore'] = new WC_Auto_Stock_Restore();
+    // Initialize the plugin by creating an instance of the class.
+    $GLOBALS['wc_auto_stock_restore'] = new WC_Auto_Stock_Restore();
 }
