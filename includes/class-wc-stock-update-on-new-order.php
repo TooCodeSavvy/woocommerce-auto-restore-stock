@@ -23,21 +23,21 @@ class WC_Stock_Update_On_New_Order {
             return;
         }
 
-        // Loop through each item in the order
+        $initial_stock_data = []; // Initialize an array to store stock data
+
         foreach ( $order->get_items() as $item_id => $item ) {
-            $product = $item->get_product(); // Get the product object (simple or variation)
-
-            // Check if the product manages stock
+            $product = $item->get_product();
+            
             if ( $product && $product->managing_stock() ) {
-                $current_stock = $product->get_stock_quantity(); // Get the current stock value
-
-                // Add a note to the order about the current stock level
-                $order->add_order_note( sprintf(
-                    __( 'Initial stock for item #%s is %s.', 'woocommerce' ),
-                    $product->get_id(),
-                    $current_stock // Display the current stock value
-                ));
+                $variation_id = $product->get_id(); // For variations, this is the variation ID
+                
+                // Add the current stock level to an array with variation or product ID as the key
+                $initial_stock_data[ $variation_id ] = $product->get_stock_quantity(); 
             }
         }
+        
+        // Save the stock data as order meta
+        $order->update_meta_data( '_initial_stock_levels', json_encode( $initial_stock_data ) );
+        $order->save(); 
     }
 }
