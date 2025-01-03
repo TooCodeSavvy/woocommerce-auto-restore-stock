@@ -15,39 +15,40 @@ class WC_Stock_Restoration {
      * @param int $order_id The ID of the order being updated.
      */
     public function restore_order_stock( $order_id ) {
-        $order = wc_get_order( $order_id ); // Retrieve the order object
-
-        // Ensure stock management is enabled and the order has items
+        $order = wc_get_order( $order_id );
+    
+        // Check if stock management is enabled and the order has items
         if ( ! get_option( 'woocommerce_manage_stock' ) == 'yes' || empty( $order->get_items() ) ) {
             return;
         }
-
-        // Loop through each item in the order
+    
+        // Retrieve saved initial stock levels
+        $initial_stock_levels = json_decode( $order->get_meta( '_initial_stock_levels' ), true );
+    
         foreach ( $order->get_items() as $item_id => $item ) {
-            $product = $item->get_product(); // Get the product object (simple or variation)
-
-            // Check if the product manages stock
+            $product = $item->get_product();
+    
             if ( $product && $product->managing_stock() ) {
-                $current_stock = $product->get_stock_quantity(); // Get the current stock level before update
-                $qty = $item->get_quantity(); // Get the quantity of the product in the order
+                $variation_id = $product->get_id();
+    
+                // Check if initial stock data is available
+                if ( isset( $initial_stock_levels[ $variation_id ] ) ) {
+                    $original_stock = $initial_stock_levels[ $variation_id ];
+                    $current_stock = $product->get_stock_quantity(); // Retrieve current stock value
 
-                // Correct the stock by adjusting based on the original stock level
-                $new_stock = $current_stock + $qty;
-
-                // Update the stock with the correct value
-                $product->set_stock_quantity( $new_stock );
-                $product->save();
-
-                // Reload the product to ensure the stock value is updated
-                $product = wc_get_product( $product->get_id() );
-
-                // Add a note to the order for logging purposes
-                $order->add_order_note( sprintf(
-                    __( 'Stock for item #%s restored to %s.', 'woocommerce' ),
-                    $product->get_id(),
-                    $product->get_stock_quantity() // Use updated stock value from product object
-                ));
+                    // Restore stock to the original value
+                    $product->set_stock_quantity( $original_stock );
+                    $product->save();
+    
+                    // Add an order note with more details
+                    $order->add_order_note( sprintf(
+                        __( 'Stock for item #%s restored from %s to %s.', 'woocommerce' ),
+                        $variation_id,
+                        $current_stock,
+                        $original_stock
+                    ));
+                }
             }
         }
-    }
+    } 
 }
