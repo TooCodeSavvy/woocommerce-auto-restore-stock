@@ -20,6 +20,19 @@ When stock is restored, the plugin also adds an order note to provide transparen
 
 ---
 
+### File Structure:
+
+```
+/woocommerce-auto-stock-restore
+├── /includes
+│   ├── class-wc-auto-stock-restore.php        // Main Plugin Class (Plugin initialization and hooks)
+│   ├── class-wc-stock-restoration.php        // Stock restoration logic (for cancelled/refunded orders)
+│   ├── class-wc-stock-update-on-new-order.php  // Logic to add stock note on new orders 
+└── woocommerce-auto-stock-restore.php       // Main plugin entry file
+```
+
+---
+
 #### Key Features:
 
 -   Automatically restores stock for simple and variable products.
