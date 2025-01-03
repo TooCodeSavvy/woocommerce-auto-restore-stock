@@ -2,7 +2,7 @@
 
 **Tags:** WooCommerce, stock, inventory, restore, cancelled, refunded\
 **Requires at least:** 3.7\
-**Stable tag:** 1.0.2\
+**Stable tag:** 1.0.3\
 **License:** GPLv2 or later\
 **License URI:** <http://www.gnu.org/licenses/gpl-2.0.html>
 
@@ -16,7 +16,20 @@ WooCommerce Auto Restore Stock automatically restores your WooCommerce inventory
 
 The stock restoration process is triggered when an order transitions from **On-Hold**, **Processing**, or **Completed** to either **Cancelled** or **Refunded** status.
 
-When stock is restored, the plugin also adds an order note to provide transparency about the changes. These notes indicate the adjusted stock values and confirm that the inventory has been restored.
+When stock is restored, the plugin also adds an order note to provide transparency about the changes. These notes indicate the adjusted stock values and confirm that the inventory has been restored. Additionally, stock information is added to new orders, ensuring that the stock value is logged for transparency from the start.
+
+---
+
+### File Structure:
+
+```
+/woocommerce-auto-stock-restore
+├── /includes
+│   ├── class-wc-auto-stock-restore.php        // Main Plugin Class (Plugin initialization and hooks)
+│   ├── class-wc-stock-restoration.php        // Stock restoration logic (for cancelled/refunded orders)
+│   ├── class-wc-stock-update-on-new-order.php  // Logic to add stock note on new orders
+└── woocommerce-auto-stock-restore.php       // Main plugin entry file      
+```
 
 ---
 
@@ -50,6 +63,12 @@ A: Yes, the plugin adds order notes detailing the restored stock levels for full
 ---
 
 ### Changelog
+
+#### 1.0.3
+
+-   Added functionality to log stock values on new orders.
+-   Updated code structure to comply with OOP principles.
+-   Improved documentation and added class-level comments.
 
 #### 1.0.2
 
