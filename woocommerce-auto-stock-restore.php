@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Auto Restore Stock
  * Description: Automatically restores stock for products when orders are cancelled or refunded in WooCommerce.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Anouar
  * License: GPL2
  */
