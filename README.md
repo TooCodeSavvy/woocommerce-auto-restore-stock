@@ -12,7 +12,7 @@ Automatically restores WooCommerce inventory/stock for orders that are cancelled
 
 ### Description
 
-WooCommerce Auto Restore Stock automatically restores your WooCommerce inventory/stock for orders that are cancelled or refunded.
+WooCommerce Auto Restore Stock automatically restores your WooCommerce inventory/stock for orders that are cancelled.
 
 The stock restoration process is triggered when an order transitions from **On-Hold**, **Processing**, or **Completed** to **Cancelled** status.
 
