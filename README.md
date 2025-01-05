@@ -1,6 +1,6 @@
 ### WooCommerce Auto Restore Stock
 
-**Tags:** WooCommerce, stock, inventory, restore, cancelled, refunded\
+**Tags:** WooCommerce, stock, inventory, restore, cancelled\
 **Requires at least:** 3.7\
 **Stable tag:** 1.0.4\
 **License:** GPLv2 or later\
