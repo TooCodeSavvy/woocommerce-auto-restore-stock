@@ -6,7 +6,7 @@
 **License:** GPLv2 or later\
 **License URI:** <http://www.gnu.org/licenses/gpl-2.0.html>
 
-Automatically restores WooCommerce inventory/stock for orders that are cancelled or refunded.
+Automatically restores WooCommerce inventory/stock for orders that are cancelled.
 
 ---
 
